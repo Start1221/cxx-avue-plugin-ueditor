@@ -1,4 +1,5 @@
 import Ueditor from './ueditor/index.js';
+import Vue from 'vue';
 const components = [
     Ueditor
 ];
@@ -11,6 +12,8 @@ function install(Vue) {
 
 if (window.Vue) {
     install(window.Vue);
+} else {
+    install(Vue);
 }
 
 export default install;

@@ -1,33 +1,40 @@
-# avue-plugin-transfer
+# avue-plugin-ueditor
 
 ## avue 富文本编辑器
 
-## Project setup
+## npm
+[avue-plugin-ueditor](https://www.npmjs.com/package/avue-plugin-transfer)
+
+## git
+[avue-plugin-ueditor](https://gitee.com/smallweigit/avue-plugin-ueditor)
+
+## demo
+<p align="center">
+  <img width="600" src="https://gitee.com/smallweigit/avue-plugin-transfer/raw/master/packages/demo/demo.png">
+</p>
+
+## use
 ```
-yarn install
+1.安装
+npm install avue-plugin-ueditor --save
+
+2.导入
+import AvueUeditor from 'avue-plugin-ueditor'
+Vue.use(AvueUeditor);
+
+3.使用
+...
+column:[
+  ...
+    {
+      label:'test',
+      prop:'test',
+      component: "AvueUeditor"
+    }
+  ...
+]
+或者直接
+<avue-ueditor v-model="text" ></avue-ueditor>
+...
 ```
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
-
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
-
-### Run your unit tests
-```
-yarn run test:unit
-```
-
-### Run your end-to-end tests
-```
-yarn run test:e2e
-```
