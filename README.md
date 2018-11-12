@@ -3,14 +3,14 @@
 ## avue 富文本编辑器
 
 ## npm
-[avue-plugin-ueditor](https://www.npmjs.com/package/avue-plugin-transfer)
+[avue-plugin-ueditor](https://www.npmjs.com/package/avue-plugin-ueditor)
 
 ## git
 [avue-plugin-ueditor](https://gitee.com/smallweigit/avue-plugin-ueditor)
 
 ## demo
 <p align="center">
-  <img width="600" src="https://gitee.com/smallweigit/avue-plugin-transfer/raw/master/packages/demo/demo.png">
+  <img width="600" src="https://gitee.com/smallweigit/avue-plugin-ueditor/raw/master/packages/demo/demo.png">
 </p>
 
 ## use
