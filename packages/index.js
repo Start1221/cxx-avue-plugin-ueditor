@@ -5,6 +5,7 @@ const components = [
 ];
 
 function install(Vue) {
+    Vue.prototype.$httpajax = window.axios;
     components.map(component => {
         Vue.component(component.name, component);
     });

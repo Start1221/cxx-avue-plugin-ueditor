@@ -35,6 +35,33 @@ column:[
 ]
 或者直接
 <avue-ueditor v-model="text" ></avue-ueditor>
+
+4.图片上传配置————支持oss
+具体用法参考https://avuex.avue.top/#/doc/form-upload
+upload: {
+  //普通图片上传
+  action: "https://avueupload.91eic.com/upload/list",
+  props: {
+    res: "data.0",
+    url: "url"
+  },
+  //七牛云oss配置
+  qiniu: {
+    AK: "",
+    SK: "",
+    scope: "test",
+    url: "http://pm7cc17lu.bkt.clouddn.com/",
+    deadline: 1
+  },
+  //阿里云oss配置
+  ali: {
+    region: "oss-cn-beijing",
+    endpoint: "oss-cn-beijing.aliyuncs.com",
+    accessKeyId: "",
+    accessKeySecret: "",
+    bucket: "avue"
+  }
+}
 ...
 ```
 
