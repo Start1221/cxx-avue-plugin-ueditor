@@ -168,51 +168,58 @@ export default {
     handleUpload(e) {
       this.loading = true;
       const file = e.target.files[0];
-      const headers = { "Content-Type": "multipart/form-data" };
-      let oss_config = {};
-      let client;
-      let param = new FormData();
-      let url = this.action;
-      param.append("file", file, file.name);
-      if (this.isQiniuOSS) {
-        oss_config = this.qiniu;
-        const token = getToken(oss_config.AK, oss_config.SK, {
-          scope: oss_config.scope,
-          deadline: new Date().getTime() + oss_config.deadline * 3600
-        });
-        param.append("token", token);
-        url = "http://up.qiniu.com/";
-      } else if (this.isAliOSS) {
-        oss_config = this.ali;
-        client = getClient({
-          region: oss_config.region,
-          endpoint: oss_config.endpoint,
-          accessKeyId: oss_config.accessKeyId,
-          accessKeySecret: oss_config.accessKeySecret,
-          bucket: oss_config.bucket
-        });
-      }
-      (() => {
-        if (this.isAliOSS) {
-          return client.put(file.name, file);
-        } else {
-          return this.$httpajax.post(url, param, { headers });
-        }
-      })().then(res => {
-        let list = {};
-        if (this.isAliOSS) {
-          list = res;
-          this.img.url = list.url;
-        } else if (this.isQiniuOSS) {
-          list = res.data;
-          list.key = oss_config.url + list.key;
-          this.img.url = list.key;
-        } else {
-          list = getObjValue(res.data, this.props.res, "object");
-          this.img.url = list[this.props.url];
-        }
-        this.loading = false;
+      this.handleFile(file).then(() => {
         this.setImgParam();
+      });
+    },
+    handleFile(file) {
+      return new Promise(resolve => {
+        const headers = { "Content-Type": "multipart/form-data" };
+        let oss_config = {};
+        let client;
+        let param = new FormData();
+        let url = this.action;
+        param.append("file", file, file.name);
+        if (this.isQiniuOSS) {
+          oss_config = this.qiniu;
+          const token = getToken(oss_config.AK, oss_config.SK, {
+            scope: oss_config.scope,
+            deadline: new Date().getTime() + oss_config.deadline * 3600
+          });
+          param.append("token", token);
+          url = "http://up.qiniu.com/";
+        } else if (this.isAliOSS) {
+          oss_config = this.ali;
+          client = getClient({
+            region: oss_config.region,
+            endpoint: oss_config.endpoint,
+            accessKeyId: oss_config.accessKeyId,
+            accessKeySecret: oss_config.accessKeySecret,
+            bucket: oss_config.bucket
+          });
+        }
+        (() => {
+          if (this.isAliOSS) {
+            return client.put(file.name, file);
+          } else {
+            return this.$httpajax.post(url, param, { headers });
+          }
+        })().then(res => {
+          let list = {};
+          if (this.isAliOSS) {
+            list = res;
+            this.img.url = list.url;
+          } else if (this.isQiniuOSS) {
+            list = res.data;
+            list.key = oss_config.url + list.key;
+            this.img.url = list.key;
+          } else {
+            list = getObjValue(res.data, this.props.res, "object");
+            this.img.url = list[this.props.url];
+          }
+          this.loading = false;
+          resolve();
+        });
       });
     },
     setImgParam() {
@@ -230,6 +237,33 @@ export default {
       this.text = this.value;
       this.options.placeholder = this.placeholder || "请输入内容";
       this.options.readonly = this.readonly;
+
+      //粘贴键
+      document.addEventListener("paste", e => {
+        //获取剪切板文件
+        const getFile = event => {
+          if (event.clipboardData || event.originalEvent) {
+            var clipboardData =
+              event.clipboardData || event.originalEvent.clipboardData;
+            if (clipboardData.items) {
+              var items = clipboardData.items,
+                len = items.length,
+                blob = null;
+              for (var i = 0; i < len; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                  blob = items[i].getAsFile();
+                  return blob;
+                }
+              }
+            }
+          }
+        };
+        const file = getFile(e);
+        this.box = true;
+        this.handleFile(file).then(() => {
+          this.setImgParam();
+        });
+      });
     },
     handleClick() {
       if (typeof this.click === "function")

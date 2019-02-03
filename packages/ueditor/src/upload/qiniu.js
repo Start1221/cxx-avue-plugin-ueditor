@@ -1,6 +1,7 @@
 export const getToken = (accessKey, secretKey, putPolicy) => {
+  let { scope, deadline } = putPolicy
   //SETP 2
-  var put_policy = JSON.stringify(putPolicy);
+  var put_policy = JSON.stringify({ scope, deadline });
 
   //SETP 3
   var encoded = base64encode(utf16to8(put_policy));
