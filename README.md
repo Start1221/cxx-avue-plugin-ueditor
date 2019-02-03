@@ -36,7 +36,7 @@ column:[
 或者直接
 <avue-ueditor v-model="text" ></avue-ueditor>
 
-4.图片上传配置————支持oss
+4.图片上传配置————(支持oss,支持ctrl+v粘贴图片)
 具体用法参考https://avuex.avue.top/#/doc/form-upload
 upload: {
   //普通图片上传

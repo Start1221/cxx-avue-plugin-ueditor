@@ -237,7 +237,6 @@ export default {
       this.text = this.value;
       this.options.placeholder = this.placeholder || "请输入内容";
       this.options.readonly = this.readonly;
-
       //粘贴键
       document.addEventListener("paste", e => {
         //获取剪切板文件
