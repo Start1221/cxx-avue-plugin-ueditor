@@ -6,7 +6,6 @@
                   @click.native="handleClick"
                   ref="myQuillEditor"
                   :options="options">
-
     </quill-editor>
     <div class="avue-ueditor__dialog"
          v-if="box">
@@ -114,7 +113,7 @@ export default {
     },
     minRows: {
       type: Number,
-      default: 5
+      default: 6
     },
     maxRows: {
       type: Number,
@@ -258,10 +257,12 @@ export default {
           }
         };
         const file = getFile(e);
-        this.box = true;
-        this.handleFile(file).then(() => {
-          this.setImgParam();
-        });
+        if (file) {
+          this.box = true;
+          this.handleFile(file).then(() => {
+            this.setImgParam();
+          });
+        }
       });
     },
     handleClick() {
