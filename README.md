@@ -29,7 +29,7 @@ column:[
     {
       label:'test',
       prop:'test',
-      component: "AvueUeditor"
+      component: "Ueditor"
     }
   ...
 ]
