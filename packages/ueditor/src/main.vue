@@ -4,51 +4,56 @@
                   v-model="text"
                   @change="handleChange"
                   @click.native="handleClick"
+                  @dblclick.native="handleDbClick"
                   ref="myQuillEditor"
-                  :options="options">
+                  :options="option">
     </quill-editor>
-    <div class="avue-ueditor__dialog"
-         v-if="box">
-      <div class="avue-ueditor__mask"
-           @click.stop="box=false"></div>
-      <div class="avue-ueditor__content">
-        <p class="avue-ueditor__tip"
-           v-if="loading">正在上传，请稍后</p>
-        <div class="avue-ueditor__img">
-          <div class="avue-ueditor__img-left">
-            <p>
-              宽度:<input type="text"
-                     class="avue-ueditor__img-input"
-                     v-model="img.width" />
-            </p>
-            <p>
-              高度:<input type="text"
-                     class="avue-ueditor__img-input"
-                     v-model="img.height" />
-            </p>
+    <transition name="fade">
+      <div class="avue-ueditor__dialog"
+           v-if="box">
+        <div class="avue-ueditor__mask"
+             @click.stop="box=false"></div>
+        <div class="avue-ueditor__content">
+          <p class="avue-ueditor__tip"
+             v-if="loading">正在上传，请稍后</p>
+          <div class="avue-ueditor__img">
+            <div class="avue-ueditor__img-left">
+              <p>
+                <small>宽度</small>:<input type="text"
+                       class="avue-ueditor__img-input"
+                       v-model="img.width" />
+              </p>
+              <p>
+                <small>高度</small>:<input type="text"
+                       class="avue-ueditor__img-input"
+                       v-model="img.height" />
+              </p>
+            </div>
+            <div class="avue-ueditor__img-right">
+              <img :src="img.url"
+                   class="avue-ueditor__img-img"
+                   ref="img"
+                   :style="styles"
+                   alt="" />
+            </div>
           </div>
-          <div class="avue-ueditor__img-right">
-            <img :src="img.url"
-                 class="avue-ueditor__img-img"
-                 ref="img"
-                 :style="styles"
-                 alt="" />
+          <div class="avue-ueditor__menu">
+            <div class="avue-ueditor__upload"
+                 v-if="!isImg">
+              <button class="avue-ueditor__btn">上 传</button>
+              <input type="file"
+                     id="file"
+                     @change="handleUpload"
+                     class="avue-ueditor__file" />
+            </div>
+            &nbsp;
+            <button class="avue-ueditor__btn"
+                    @click="handleSubmit">确 定</button>
           </div>
-        </div>
-        <div class="avue-ueditor__menu">
-          <div class="avue-ueditor__upload">
-            <button class="avue-ueditor__btn">上传</button>
-            <input type="file"
-                   id="file"
-                   @change="handleUpload"
-                   class="avue-ueditor__file" />
-          </div>
-          <button class="avue-ueditor__btn"
-                  @click="handleSubmit">确定</button>
-        </div>
 
+        </div>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 <script>
@@ -62,22 +67,25 @@ export default {
     quillEditor
   },
   computed: {
-    props() {
-      return this.upload.props;
+    isImg () {
+      return this.img.obj.src
     },
-    oss() {
-      return this.upload.oss;
+    props () {
+      return this.options.props || this.upload.props;
     },
-    action() {
-      return this.upload.action;
+    oss () {
+      return this.options.oss || this.upload.oss;
     },
-    qiniu() {
-      return this.upload.qiniu;
+    action () {
+      return this.options.action || this.upload.action;
     },
-    ali() {
-      return this.upload.ali;
+    qiniu () {
+      return this.options.qiniu || this.upload.qiniu;
     },
-    styles() {
+    ali () {
+      return this.options.ali || this.upload.ali;
+    },
+    styles () {
       if (this.img.width === 0 || this.img.height === 0) {
         return {};
       }
@@ -86,14 +94,20 @@ export default {
         height: this.img.height + "px"
       };
     },
-    isQiniuOSS() {
+    isQiniuOSS () {
       return this.oss === "qiniu";
     },
-    isAliOSS() {
+    isAliOSS () {
       return this.oss === "ali";
     }
   },
   props: {
+    options: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
     upload: {
       type: Object,
       default: () => {
@@ -113,65 +127,74 @@ export default {
     },
     minRows: {
       type: Number,
-      default: 6
+      default: 8
     },
     maxRows: {
       type: Number,
       default: 10
     }
   },
-  data() {
+  data () {
     return {
+      myQuillEditor: {},
       loading: false,
       text: undefined,
       box: false,
       img: {
+        obj: {},
         url: "",
         width: 0,
         height: 0,
         calc: ""
       },
-      options: {
+      option: {
         placeholder: "请输入内容",
         readonly: false
       }
     };
   },
   watch: {
-    "img.width"(n, o) {
+    "img.width" (n, o) {
       if (n === 0 || o === 0) return;
       this.img.height = parseInt(n * this.img.calc);
     },
-    value() {
+    value () {
       this.text = this.value;
     }
   },
-  created() {
+  created () {
     this.init();
   },
-  mounted() {
-    this.$refs.myQuillEditor.quill
+  mounted () {
+    this.myQuillEditor = this.$refs.myQuillEditor.quill
+    this.myQuillEditor
       .getModule("toolbar")
       .addHandler("image", this.imgHandler);
   },
   methods: {
-    handleSubmit() {
-      let quill = this.$refs.myQuillEditor.quill;
-      quill.root.innerHTML = this.text + this.$refs.img.outerHTML;
-      quill.focus();
+    handleSubmit () {
+      const index = this.myQuillEditor.selection.savedRange.index || this.text.length;
+      if (this.isImg) {
+        this.img.obj.width = this.$refs.img.width;
+        this.img.obj.height = this.$refs.img.height;
+      } else {
+        this.myQuillEditor.insertEmbed(index, "image", this.img.url);
+        this.myQuillEditor.focus();
+      }
+      this.img.obj = {};
       this.img.url = "";
       this.img.width = 0;
       this.img.height = 0;
       this.box = false;
     },
-    handleUpload(e) {
+    handleUpload (e) {
       this.loading = true;
       const file = e.target.files[0];
       this.handleFile(file).then(() => {
         this.setImgParam();
       });
     },
-    handleFile(file) {
+    handleFile (file) {
       return new Promise(resolve => {
         const headers = { "Content-Type": "multipart/form-data" };
         let oss_config = {};
@@ -221,7 +244,7 @@ export default {
         });
       });
     },
-    setImgParam() {
+    setImgParam () {
       const img = this.$refs.img;
       img.onload = () => {
         this.img.width = img.width;
@@ -229,13 +252,16 @@ export default {
         this.img.calc = img.height / img.width;
       };
     },
-    imgHandler() {
+    imgHandler () {
       this.box = true;
     },
-    init() {
+    init () {
       this.text = this.value;
-      this.options.placeholder = this.placeholder || "请输入内容";
-      this.options.readonly = this.readonly;
+      this.option.placeholder = this.placeholder || "请输入内容";
+      this.option.readonly = this.readonly;
+      this.handlePaste();
+    },
+    handlePaste () {
       //粘贴键
       document.addEventListener("paste", e => {
         //获取剪切板文件
@@ -265,11 +291,23 @@ export default {
         }
       });
     },
-    handleClick() {
+
+    handleClick () {
       if (typeof this.click === "function")
         this.click({ value: this.text, column: this.column });
     },
-    handleChange(value) {
+    handleDbClick (e) {
+      if (e.target.nodeName == 'IMG') {
+        const img = e.target
+        this.img.obj = e.target;
+        this.img.url = img.src;
+        this.img.width = img.width;
+        this.img.height = img.height;
+        this.img.calc = img.height / img.width;
+        this.box = true;
+      }
+    },
+    handleChange (value) {
       if (typeof this.change === "function")
         this.change({ value: value.html, column: this.column });
       this.$emit("input", value.html);

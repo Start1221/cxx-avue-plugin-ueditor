@@ -22,7 +22,7 @@ npm install avue-plugin-ueditor --save
 import AvueUeditor from 'avue-plugin-ueditor'
 Vue.use(AvueUeditor);
 
-3.使用
+3.使用(双击图片可改变大小)
 ...
 column:[
   ...

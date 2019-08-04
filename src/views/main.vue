@@ -8,9 +8,9 @@
 <script>
 export default {
   name: "main",
-  data() {
+  data () {
     return {
-      obj: "",
+      obj: '<h2><strong>asdsadas</strong></h2><p><img src="http://avue.91eic.com/avue%401d32686e_image.png?e=1564920630&amp;token=J_o9k9l5YS62NipOMr2nHPQTbldL7PcxvXOVhJgu:qfz6bCy5Z7ptqHFzK1TRTx0HfBg=" alt="" class="avue-ueditor__img-img" style="width: 378px; height: 200px;"></p>',
       upload: {
         action: "https://avueupload.91eic.com/upload/list",
         props: {

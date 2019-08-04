@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const getToken = (accessKey, secretKey, putPolicy) => {
   let { scope, deadline } = putPolicy
   //SETP 2
@@ -7,8 +8,8 @@ export const getToken = (accessKey, secretKey, putPolicy) => {
   var encoded = base64encode(utf16to8(put_policy));
 
   //SETP 4
-  var hash = CryptoJS.HmacSHA1(encoded, secretKey);
-  var encoded_signed = hash.toString(CryptoJS.enc.Base64);
+  var hash = window.CryptoJS.HmacSHA1(encoded, secretKey);
+  var encoded_signed = hash.toString(window.CryptoJS.enc.Base64);
 
   //SETP 5
   var upload_token = accessKey + ":" + safe64(encoded_signed) + ":" + encoded;
@@ -16,7 +17,7 @@ export const getToken = (accessKey, secretKey, putPolicy) => {
   return upload_token;
 
 }
-function utf16to8(str) {
+function utf16to8 (str) {
   var out, i, len, c;
   out = "";
   len = str.length;
@@ -36,7 +37,7 @@ function utf16to8(str) {
   return out;
 }
 
-function utf8to16(str) {
+function utf8to16 (str) {
   var out, i, len, c;
   var char2, char3;
   out = "";
@@ -84,7 +85,7 @@ var base64DecodeChars = new Array(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
   15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
   41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1);
 
-function base64encode(str) {
+function base64encode (str) {
   var out, i, len;
   var c1, c2, c3;
   len = str.length;
@@ -115,7 +116,7 @@ function base64encode(str) {
   return out;
 }
 
-function base64decode(str) {
+function base64decode (str) {
   var c1, c2, c3, c4;
   var i, len, out;
   len = str.length;
