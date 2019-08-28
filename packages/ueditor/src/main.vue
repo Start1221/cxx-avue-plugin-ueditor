@@ -2,6 +2,7 @@
   <div class="avue-ueditor">
     <quill-editor :style="{height:`${minRows*40+100}px`,maxHeight:`${maxRows*40+100}px`}"
                   v-model="text"
+                  :disabled="disabled"
                   @change="handleChange"
                   @click.native="handleClick"
                   @dblclick.native="handleDbClick"
@@ -117,6 +118,10 @@ export default {
     value: {
       type: String,
       default: ""
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     },
     readonly: {
       type: Boolean,
