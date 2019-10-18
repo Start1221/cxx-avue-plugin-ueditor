@@ -11,21 +11,29 @@
     </quill-editor>
     <transition name="fade">
       <div class="avue-ueditor__dialog"
-           v-if="box">
+           v-show="box">
         <div class="avue-ueditor__mask"
              @click.stop="box=false"></div>
+
         <div class="avue-ueditor__content">
-          <p class="avue-ueditor__tip"
-             v-if="loading">正在上传，请稍后</p>
+          <p class="avue-ueditor__tip">
+            <span v-if="loading">
+              正在上传中，请稍后
+            </span>
+          </p>
           <div class="avue-ueditor__img">
             <div class="avue-ueditor__img-left">
               <p>
-                <small>宽度</small>:<input type="text"
+                <small>宽度</small>:
+                <input type="text"
+                       :disabled="imgFlag"
                        class="avue-ueditor__img-input"
                        v-model="img.width" />
               </p>
               <p>
-                <small>高度</small>:<input type="text"
+                <small>高度</small>:
+                <input type="text"
+                       :disabled="imgFlag"
                        class="avue-ueditor__img-input"
                        v-model="img.height" />
               </p>
@@ -34,21 +42,23 @@
               <img :src="img.url"
                    class="avue-ueditor__img-img"
                    ref="img"
-                   :style="styles"
+                   :width="img.width"
+                   :height="img.height"
                    alt="" />
             </div>
           </div>
           <div class="avue-ueditor__menu">
             <div class="avue-ueditor__upload"
                  v-if="!isImg">
-              <button class="avue-ueditor__btn">上 传</button>
+              <button class="avue-ueditor__btn avue-ueditor__btn--plan">上 传</button>
               <input type="file"
                      id="file"
                      @change="handleUpload"
                      class="avue-ueditor__file" />
             </div>
             &nbsp;
-            <button class="avue-ueditor__btn"
+            <button class="avue-ueditor__btn avue-ueditor__btn--plan"
+                    :class="{'avue-ueditor__btn--disabled':imgFlag}"
                     @click="handleSubmit">确 定</button>
           </div>
 
@@ -68,8 +78,14 @@ export default {
     quillEditor
   },
   computed: {
+    imgFlag () {
+      return this.img.url == '';
+    },
     isImg () {
       return this.img.obj.src
+    },
+    urlKey () {
+      return this.props.url || 'url';
     },
     props () {
       return this.options.props || this.upload.props;
@@ -85,15 +101,6 @@ export default {
     },
     ali () {
       return this.options.ali || this.upload.ali;
-    },
-    styles () {
-      if (this.img.width === 0 || this.img.height === 0) {
-        return {};
-      }
-      return {
-        width: this.img.width + "px",
-        height: this.img.height + "px"
-      };
     },
     isQiniuOSS () {
       return this.oss === "qiniu";
@@ -163,6 +170,13 @@ export default {
       if (n === 0 || o === 0) return;
       this.img.height = parseInt(n * this.img.calc);
     },
+    disabled: {
+      handle () {
+        this.$nextTick(() => {
+          this.myQuillEditor.enable(false)
+        })
+      }
+    },
     value () {
       this.text = this.value;
     }
@@ -178,6 +192,7 @@ export default {
   },
   methods: {
     handleSubmit () {
+      if (this.imgFlag) return
       const index = this.myQuillEditor.selection.savedRange.index || this.text.length;
       if (this.isImg) {
         this.img.obj.width = this.$refs.img.width;
@@ -186,11 +201,14 @@ export default {
         this.myQuillEditor.insertEmbed(index, "image", this.img.url);
         this.myQuillEditor.focus();
       }
+      this.clearImg();
+      this.box = false;
+    },
+    clearImg () {
       this.img.obj = {};
       this.img.url = "";
       this.img.width = 0;
       this.img.height = 0;
-      this.box = false;
     },
     handleUpload (e) {
       this.loading = true;
@@ -242,8 +260,10 @@ export default {
             this.img.url = list.key;
           } else {
             list = getObjValue(res.data, this.props.res, "object");
-            this.img.url = list[this.props.url];
+            this.img.url = list[this.urlKey];
           }
+          this.img.width = false;
+          this.img.height = false;
           this.loading = false;
           resolve();
         });
@@ -258,6 +278,7 @@ export default {
       };
     },
     imgHandler () {
+      this.clearImg();
       this.box = true;
     },
     init () {

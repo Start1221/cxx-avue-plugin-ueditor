@@ -1,8 +1,8 @@
 <template>
   <div>
-    <span> {{obj}}</span>
     <avue-ueditor v-model="obj"
                   :upload="upload"></avue-ueditor>
+    <span class="avue-ueditor__code">{{obj}}</span>
   </div>
 </template>
 <script>
@@ -10,12 +10,12 @@ export default {
   name: "main",
   data () {
     return {
-      obj: '<h2><strong>asdsadas</strong></h2><p><img src="http://avue.91eic.com/avue%401d32686e_image.png?e=1564920630&amp;token=J_o9k9l5YS62NipOMr2nHPQTbldL7PcxvXOVhJgu:qfz6bCy5Z7ptqHFzK1TRTx0HfBg=" alt="" class="avue-ueditor__img-img" style="width: 378px; height: 200px;"></p>',
+      obj: '<h1 class="ql-align-center"><a href="https://avuejs.com/doc/plugins/ueditor-plugins" target="_blank"><strong>欢迎使用Avue富文本编辑器</strong></a></h1><p class="ql-align-center"><img src="https://avuejs.com/images/logo-bg.jpg" height="200" width="200"></p>',
       upload: {
-        action: "https://avueupload.91eic.com/upload/list",
+        action: "https://avuejs.com/imgupload",
         props: {
-          res: "data.0",
-          url: "url"
+          res: "data",
+          url: 'url'
         },
         qiniu: {
           AK: "BLEIUCkTJhUKfb7Yl4wa2X-5B6uecKNxoCd93IlG",

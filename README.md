@@ -29,7 +29,31 @@ column:[
     {
       label:'test',
       prop:'test',
-      component: "Ueditor"
+      component: "ueditor",
+      options:{
+        //普通图片上传
+        action: "https://avuejs.com/upload",
+        props: {
+          res: "data",
+          url:'url'
+        },
+        //七牛云oss配置
+        qiniu: {
+          AK: "",
+          SK: "",
+          scope: "test",
+          url: "http://pm7cc17lu.bkt.clouddn.com/",
+          deadline: 1
+        },
+        //阿里云oss配置
+        ali: {
+          region: "oss-cn-beijing",
+          endpoint: "oss-cn-beijing.aliyuncs.com",
+          accessKeyId: "",
+          accessKeySecret: "",
+          bucket: "avue"
+        }
+      }
     }
   ...
 ]
@@ -40,10 +64,10 @@ column:[
 具体用法参考https://avuex.avue.top/#/doc/form-upload
 upload: {
   //普通图片上传
-  action: "https://avueupload.91eic.com/upload/list",
+  action: "https://avuejs.com/upload",
   props: {
-    res: "data.0",
-    url: "url"
+    res: "data",
+    url:'url'
   },
   //七牛云oss配置
   qiniu: {
