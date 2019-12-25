@@ -285,6 +285,7 @@ export default {
       this.text = this.value;
       this.option.placeholder = this.placeholder || "请输入内容";
       this.option.readonly = this.readonly;
+      this.option = Object.assign(this.option, this.options, this.upload)
       this.handlePaste();
     },
     handlePaste () {
