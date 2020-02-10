@@ -10,7 +10,7 @@ export default {
   name: "main",
   data () {
     return {
-      obj: '<h1 class="ql-align-center"><a href="https://avuejs.com/doc/plugins/ueditor-plugins" target="_blank"><strong>欢迎使用Avue富文本编辑器</strong></a></h1><p class="ql-align-center"><img src="https://avuejs.com/images/logo-bg.jpg" height="200" width="200"></p>',
+      obj: '<h1 class="ql-align-center" style="text-align: center;"><a href="https://avuejs.com/doc/plugins/ueditor-plugins" target="_blank" style="color: rgb(194, 79, 74);">欢迎使用Avue富文本编辑器</a></h1><p class="ql-align-center" style="text-align: center;"><span style="color: rgb(194, 79, 74); font-weight: bold;"><img src="https://avuejs.com/images/logo-bg.jpg" height="200" width="200"></span></p>',
       upload: {
         // modules: {
         //   toolbar: {

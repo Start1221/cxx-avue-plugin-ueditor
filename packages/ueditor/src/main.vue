@@ -1,82 +1,25 @@
 <template>
   <div class="avue-ueditor">
-    <quill-editor :style="{height:`${minRows*40+100}px`,maxHeight:`${maxRows*40+100}px`}"
-                  v-model="text"
-                  :disabled="disabled"
-                  @change="handleChange"
-                  @click.native="handleClick"
-                  @dblclick.native="handleDbClick"
-                  ref="myQuillEditor"
-                  :options="option">
-    </quill-editor>
-    <transition name="fade">
-      <div class="avue-ueditor__dialog"
-           v-show="box">
-        <div class="avue-ueditor__mask"
-             @click.stop="box=false"></div>
-
-        <div class="avue-ueditor__content">
-          <p class="avue-ueditor__tip">
-            <span v-if="loading">
-              正在上传中，请稍后
-            </span>
-          </p>
-          <div class="avue-ueditor__img">
-            <div class="avue-ueditor__img-left">
-              <p>
-                <small>宽度</small>:
-                <input type="text"
-                       :disabled="imgFlag"
-                       class="avue-ueditor__img-input"
-                       v-model="img.width" />
-              </p>
-              <p>
-                <small>高度</small>:
-                <input type="text"
-                       :disabled="imgFlag"
-                       class="avue-ueditor__img-input"
-                       v-model="img.height" />
-              </p>
-            </div>
-            <div class="avue-ueditor__img-right">
-              <img :src="img.url"
-                   class="avue-ueditor__img-img"
-                   ref="img"
-                   :width="img.width"
-                   :height="img.height"
-                   alt="" />
-            </div>
-          </div>
-          <div class="avue-ueditor__menu">
-            <div class="avue-ueditor__upload"
-                 v-if="!isImg">
-              <button class="avue-ueditor__btn avue-ueditor__btn--plan">上 传</button>
-              <input type="file"
-                     id="file"
-                     @change="handleUpload"
-                     class="avue-ueditor__file" />
-            </div>
-            &nbsp;
-            <button class="avue-ueditor__btn avue-ueditor__btn--plan"
-                    :class="{'avue-ueditor__btn--disabled':imgFlag}"
-                    @click="handleSubmit">确 定</button>
-          </div>
-
-        </div>
-      </div>
-    </transition>
+    <div id="main"></div>
+    <el-dialog title="源代码编辑"
+               :before-close="handleClose"
+               :visible.sync="dialogVisible"
+               width="100%"
+               fullscreen
+               append-to-body>
+      <el-input v-model="textall"
+                autosize
+                type="textarea"></el-input>
+    </el-dialog>
   </div>
 </template>
 <script>
-import quillEditor from "vue-quill-editor/src/editor";
 import { getClient } from "./upload/ali";
 import { getToken } from "./upload/qiniu";
-import { getObjValue } from "./upload/util";
+import { getObjValue, HTMLFormat } from "./upload/util";
+import E from 'wangeditor'
 export default {
   name: "AvueUeditor",
-  components: {
-    quillEditor
-  },
   computed: {
     imgFlag () {
       return this.img.url == '';
@@ -122,109 +65,80 @@ export default {
         return {};
       }
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
     value: {
       type: String,
       default: ""
     },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    readonly: {
-      type: Boolean,
-      default: false
-    },
-    height: {
-      default: ""
-    },
-    minRows: {
-      type: Number,
-      default: 8
-    },
-    maxRows: {
-      type: Number,
-      default: 10
-    }
   },
   data () {
     return {
-      myQuillEditor: {},
-      loading: false,
-      text: undefined,
-      box: false,
-      img: {
-        obj: {},
-        url: "",
-        width: 0,
-        height: 0,
-        calc: ""
-      },
-      option: {
-        placeholder: "请输入内容",
-        readonly: false
-      }
+      textall: '',
+      text: '',
+      dialogVisible: false,
+      editor: ''
     };
   },
   watch: {
-    "img.width" (n, o) {
-      if (n === 0 || o === 0) return;
-      this.img.height = parseInt(n * this.img.calc);
+    text () {
+      this.$emit('input', this.text);
     },
-    disabled: {
-      handle () {
-        this.$nextTick(() => {
-          this.myQuillEditor.enable(false)
+    disabled (val) {
+      this.editor.$textElem.attr('contenteditable', !val)
+    },
+    value: {
+      handler () {
+        this.text = this.value;
+        this.editor.txt.html(this.value)
+      },
+      deep: true,
+    },
+  },
+  mounted () {
+    this.initEdit();
+  },
+  methods: {
+    initEdit () {
+      this.editor = new E('#main')
+      window.wangEditor = E;
+      this.editor.customConfig.zIndex = 100
+      this.editor.customConfig.onchange = (html) => {
+        this.text = html;
+      }
+      this.initUploadImg();
+      this.editor.create()
+      this.initPlugins();
+      if (this.disabled) {
+        this.editor.$textElem.attr('contenteditable', false)
+      }
+      this.editor.txt.html(this.value)
+      this.handlePaste();
+    },
+    initUploadImg () {
+      this.editor.customConfig.customUploadImg = (file, insert) => {
+        this.uploadFile(file).then(res => {
+          insert(res)
         })
       }
     },
-    value () {
-      this.text = this.value;
-    }
-  },
-  created () {
-    this.init();
-  },
-  mounted () {
-    this.myQuillEditor = this.$refs.myQuillEditor.quill
-    this.myQuillEditor
-      .getModule("toolbar")
-      .addHandler("image", this.imgHandler);
-  },
-  methods: {
-    handleSubmit () {
-      if (this.imgFlag) return
-      const index = this.myQuillEditor.selection.savedRange.index || this.text.length;
-      if (this.isImg) {
-        this.img.obj.width = this.$refs.img.width;
-        this.img.obj.height = this.$refs.img.height;
-      } else {
-        this.myQuillEditor.insertEmbed(index, "image", this.img.url);
-        this.myQuillEditor.focus();
-      }
-      this.clearImg();
-      this.box = false;
-    },
-    clearImg () {
-      this.img.obj = {};
-      this.img.url = "";
-      this.img.width = 0;
-      this.img.height = 0;
-    },
-    handleUpload (e) {
-      this.loading = true;
-      const file = e.target.files[0];
-      this.handleFile(file).then(() => {
-        this.setImgParam();
-      });
-    },
-    handleFile (file) {
-      return new Promise(resolve => {
+    uploadFile (file) {
+      return new Promise((resolve, reject) => {
+        const loading = this.$loading({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+
         const headers = { "Content-Type": "multipart/form-data" };
         let oss_config = {};
         let client;
         let param = new FormData();
         let url = this.action;
-        param.append("file", file, file.name);
+        param.append("file", file);
         if (this.isQiniuOSS) {
           oss_config = this.qiniu;
           const token = getToken(oss_config.AK, oss_config.SK, {
@@ -251,43 +165,36 @@ export default {
           }
         })().then(res => {
           let list = {};
+          var result = '';
           if (this.isAliOSS) {
             list = res;
-            this.img.url = list.url;
+            result = list.url;
           } else if (this.isQiniuOSS) {
             list = res.data;
             list.key = oss_config.url + list.key;
-            this.img.url = list.key;
+            result = list.key;
           } else {
             list = getObjValue(res.data, this.props.res, "object");
-            this.img.url = list[this.urlKey];
+            result = list[this.urlKey];
           }
-          this.img.width = false;
-          this.img.height = false;
-          this.loading = false;
-          resolve();
+          var html = '<img src="' + result + '" />'
+          loading.close();
+          resolve(html)
+        }).catch(err => {
+          loading.close();
+          reject(err);
         });
-      });
+      })
+
     },
-    setImgParam () {
-      const img = this.$refs.img;
-      img.onload = () => {
-        this.img.width = img.width;
-        this.img.height = img.height;
-        this.img.calc = img.height / img.width;
-      };
+    handleClose (done) {
+      this.text = HTMLFormat(this.textall);
+      done()
     },
-    imgHandler () {
-      this.clearImg();
-      this.box = true;
+    getUEContent () {
+      return this.editor.txt.html()
     },
-    init () {
-      this.text = this.value;
-      this.option.placeholder = this.placeholder || "请输入内容";
-      this.option.readonly = this.readonly;
-      this.option = Object.assign(this.option, this.options, this.upload)
-      this.handlePaste();
-    },
+    HTMLFormat,
     handlePaste () {
       //粘贴键
       document.addEventListener("paste", e => {
@@ -311,35 +218,39 @@ export default {
         };
         const file = getFile(e);
         if (file) {
-          this.box = true;
-          this.handleFile(file).then(() => {
-            this.setImgParam();
-          });
+          this.uploadFile(file).then(res => {
+            this.editor.txt.append(res)
+          })
         }
       });
     },
-
-    handleClick () {
-      if (typeof this.click === "function")
-        this.click({ value: this.text, column: this.column });
+    initPlugins () {
+      E.fullscreen = {
+        // editor create之后调用
+        init: function (editorSelector) {
+          document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
+        },
+        toggleFullscreen: function (editorSelector) {
+          document.querySelector(editorSelector).toggleClass('fullscreen-editor');
+          if (document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText == '全屏') {
+            document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText = '退出全屏';
+          } else {
+            document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText = '全屏';
+          }
+        }
+      };
+      E.fullscreen.init('#main');
+      E.views = {
+        init: function (editorSelector) {
+          document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.views.toggleFullscreen(\'' + editorSelector + '\')">源代码</span></div>');
+        },
+        toggleFullscreen: () => {
+          this.textall = HTMLFormat(this.value);
+          this.dialogVisible = true;
+        }
+      };
+      E.views.init('#main');
     },
-    handleDbClick (e) {
-      if (e.target.nodeName == 'IMG') {
-        const img = e.target
-        this.img.obj = e.target;
-        this.img.url = img.src;
-        this.img.width = img.width;
-        this.img.height = img.height;
-        this.img.calc = img.height / img.width;
-        this.box = true;
-      }
-    },
-    handleChange (value) {
-      if (typeof this.change === "function")
-        this.change({ value: value.html, column: this.column });
-      this.$emit("input", value.html);
-      this.$emit("change", value.html);
-    }
   }
 };
 </script>
