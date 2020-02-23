@@ -119,7 +119,7 @@ export default {
     },
     initUploadImg () {
       this.editor.customConfig.customUploadImg = (file, insert) => {
-        this.uploadFile(file).then(res => {
+        this.uploadFile(file[0]).then(res => {
           insert(res)
         })
       }
@@ -177,7 +177,7 @@ export default {
             list = getObjValue(res.data, this.props.res, "object");
             result = list[this.urlKey];
           }
-          var html = '<img src="' + result + '" />'
+          var html = result
           loading.close();
           resolve(html)
         }).catch(err => {
@@ -219,7 +219,7 @@ export default {
         const file = getFile(e);
         if (file) {
           this.uploadFile(file).then(res => {
-            this.editor.txt.append(res)
+            this.editor.txt.append('<img src="' + res + '" />')
           })
         }
       });
