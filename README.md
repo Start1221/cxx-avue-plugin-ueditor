@@ -86,20 +86,6 @@ upload: {
     bucket: "avue"
   }
 }
-5.自定义工具菜单栏(参考vue-quill-editor的api)
-upload:{
-   modules: {
-    toolbar: {
-      container: [
-        ['bold', 'italic', 'underline', 'strike'], // 加粗、倾斜、下划线、删除线
-        [{ 'header': 1 }, { 'header': 2 }], // 标题一、标题二
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }], // 列表
-        [{ 'color': [] }, { 'background': [] }], // 字体颜色、背景颜色
-        [{ 'align': [] }, 'image']
-      ]
-    }
-  },
-}
 ...
 ```
 

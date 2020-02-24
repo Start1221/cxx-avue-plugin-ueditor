@@ -177,7 +177,7 @@ export default {
             list = getObjValue(res.data, this.props.res, "object");
             result = list[this.urlKey];
           }
-          var html = '<img src="' + result + '" />'
+          var html = result
           loading.close();
           resolve(html)
         }).catch(err => {

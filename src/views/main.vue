@@ -12,17 +12,6 @@ export default {
     return {
       obj: '<h1 class="ql-align-center" style="text-align: center;"><a href="https://avuejs.com/doc/plugins/ueditor-plugins" target="_blank" style="color: rgb(194, 79, 74);">欢迎使用Avue富文本编辑器</a></h1><p class="ql-align-center" style="text-align: center;"><span style="color: rgb(194, 79, 74); font-weight: bold;"><img src="https://avuejs.com/images/logo-bg.jpg" height="200" width="200"></span></p>',
       upload: {
-        // modules: {
-        //   toolbar: {
-        //     container: [
-        //       ['bold', 'italic', 'underline', 'strike'], // 加粗、倾斜、下划线、删除线
-        //       [{ 'header': 1 }, { 'header': 2 }], // 标题一、标题二
-        //       [{ 'list': 'ordered' }, { 'list': 'bullet' }], // 列表
-        //       [{ 'color': [] }, { 'background': [] }], // 字体颜色、背景颜色
-        //       [{ 'align': [] }, 'image']
-        //     ]
-        //   }
-        // },
         action: "https://avuejs.com/imgupload",
         props: {
           res: "data",
