@@ -92,18 +92,19 @@ export default {
     };
   },
   watch: {
-    text () {
-      this.$emit('input', this.text);
-    },
     disabled (val) {
       this.editor.$textElem.attr('contenteditable', !val)
     },
-    value: {
-      handler () {
-        this.text = this.value;
-        this.editor.txt.html(this.value)
-      },
-      deep: true,
+    value (newVal, oldVal) {
+      if (this.editor) {
+        if (newVal && newVal !== this.text) {
+          this.text = newVal;
+          this.editor.txt.html(newVal);
+        } else if (!newVal) {
+          this.text = '';
+          this.editor.txt.html('');
+        }
+      }
     },
   },
   mounted () {
@@ -116,6 +117,7 @@ export default {
       this.editor.customConfig.zIndex = 100
       this.editor.customConfig.onchange = (html) => {
         this.text = html;
+        this.$emit('input', this.text)
       }
       this.initUploadImg();
       this.editor.create()
@@ -197,7 +199,7 @@ export default {
 
     },
     handleClose (done) {
-      this.text = HTMLFormat(this.textall);
+      this.$emit('input', HTMLFormat(this.textall))
       done()
     },
     getUEContent () {
