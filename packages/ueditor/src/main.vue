@@ -1,6 +1,6 @@
 <template>
   <div class="avue-ueditor">
-    <div id="main"></div>
+    <div :id="id"></div>
     <el-dialog title="源代码编辑"
                :before-close="handleClose"
                :visible.sync="dialogVisible"
@@ -21,6 +21,9 @@ import E from 'wangeditor'
 export default {
   name: "AvueUeditor",
   computed: {
+    domId () {
+      return '#' + this.id
+    },
     imgFlag () {
       return this.img.url == '';
     },
@@ -31,7 +34,7 @@ export default {
       return this.props.url || 'url';
     },
     props () {
-      return this.options.props || this.upload.props;
+      return this.options.props || this.upload.props || {};
     },
     oss () {
       return this.options.oss || this.upload.oss;
@@ -57,6 +60,12 @@ export default {
       type: Object,
       default: () => {
         return {};
+      }
+    },
+    id: {
+      type: String,
+      default: () => {
+        return 'avue-ueditor-' + Math.ceil(Math.random() * 100)
       }
     },
     upload: {
@@ -102,7 +111,7 @@ export default {
   },
   methods: {
     initEdit () {
-      this.editor = new E('#main')
+      this.editor = new E(this.domId)
       window.wangEditor = E;
       this.editor.customConfig.zIndex = 100
       this.editor.customConfig.onchange = (html) => {
@@ -239,7 +248,7 @@ export default {
           }
         }
       };
-      E.fullscreen.init('#main');
+      E.fullscreen.init(this.domId);
       E.views = {
         init: function (editorSelector) {
           document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.views.toggleFullscreen(\'' + editorSelector + '\')">源代码</span></div>');
@@ -249,7 +258,7 @@ export default {
           this.dialogVisible = true;
         }
       };
-      E.views.init('#main');
+      E.views.init(this.domId);
     },
   }
 };
