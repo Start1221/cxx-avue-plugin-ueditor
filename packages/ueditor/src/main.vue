@@ -95,7 +95,7 @@ export default {
     disabled (val) {
       this.editor.$textElem.attr('contenteditable', !val)
     },
-    value (newVal, oldVal) {
+    value (newVal) {
       if (this.editor) {
         if (newVal && newVal !== this.text) {
           this.text = newVal;
