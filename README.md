@@ -2,6 +2,12 @@
 
 ## avue 富文本编辑器
 
+## Avue官网
+[https://avuejs.com](https://avuejs.com)
+
+## 介绍
+[avue-plugin-ueditor](https://avuejs.com/doc/plugins/ueditor-plugins)
+
 ## npm
 [avue-plugin-ueditor](https://www.npmjs.com/package/avue-plugin-ueditor)
 
@@ -29,7 +35,7 @@ column:[
     {
       label:'test',
       prop:'test',
-      component: "ueditor",
+      component: "avueUeditor",
       options:{
         //普通图片上传
         action: "https://avuejs.com/upload",
