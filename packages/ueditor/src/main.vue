@@ -53,6 +53,9 @@ export default {
     },
     isAliOSS () {
       return this.oss === "ali";
+    },
+    headers () {
+      return this.options.headers || this.upload.headers || {};
     }
   },
   props: {
@@ -144,7 +147,7 @@ export default {
           background: 'rgba(0, 0, 0, 0.7)'
         });
 
-        const headers = { "Content-Type": "multipart/form-data" };
+        const headers = Object.assign(this.headers , { "Content-Type": "multipart/form-data" });
         let oss_config = {};
         let client;
         let param = new FormData();
