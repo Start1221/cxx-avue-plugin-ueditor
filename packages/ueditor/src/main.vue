@@ -242,8 +242,10 @@ export default {
       E.fullscreen = {
         // editor create之后调用
         init: function (editorSelector) {
-          document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
-        },
+            setTimeout(() => {
+              document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
+            }, 0);
+          },
         toggleFullscreen: function (editorSelector) {
           document.querySelector(editorSelector).toggleClass('fullscreen-editor');
           if (document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText == '全屏') {
