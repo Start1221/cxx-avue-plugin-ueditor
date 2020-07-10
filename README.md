@@ -1,5 +1,3 @@
-# avue-plugin-ueditor
-
 ## avue 富文本编辑器
 <p align="center">
   <img width="600" src="https://gitee.com/smallweigit/avue-plugin-ueditor/raw/master/packages/demo/demo.png">
@@ -9,7 +7,7 @@
 [https://avuejs.com](https://avuejs.com)
 
 ## 介绍
-- [例子](https://avuejs.com/doc/plugins/ueditor-plugins)
+- [demo](https://avuejs.com/doc/plugins/ueditor-plugins)
 - [npm](https://www.npmjs.com/package/avue-plugin-ueditor)
 - [git](https://gitee.com/smallweigit/avue-plugin-ueditor)
 
