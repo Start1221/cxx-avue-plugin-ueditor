@@ -34,19 +34,22 @@ export default {
       return this.props.url || 'url';
     },
     props () {
-      return this.options.props || this.upload.props || {};
+      return this.options.props || {};
     },
     oss () {
-      return this.options.oss || this.upload.oss;
+      return this.options.oss
+    },
+    customConfig () {
+      return this.options.customConfig || {}
     },
     action () {
-      return this.options.action || this.upload.action;
+      return this.options.action
     },
     qiniu () {
-      return this.options.qiniu || this.upload.qiniu;
+      return this.options.qiniu
     },
     ali () {
-      return this.options.ali || this.upload.ali;
+      return this.options.ali
     },
     isQiniuOSS () {
       return this.oss === "qiniu";
@@ -55,7 +58,7 @@ export default {
       return this.oss === "ali";
     },
     headers () {
-      return this.options.headers || this.upload.headers || {};
+      return this.options.headers || {};
     }
   },
   props: {
@@ -69,12 +72,6 @@ export default {
       type: String,
       default: () => {
         return 'avue-ueditor-' + Math.ceil(Math.random() * 100)
-      }
-    },
-    upload: {
-      type: Object,
-      default: () => {
-        return {};
       }
     },
     disabled: {
@@ -117,11 +114,18 @@ export default {
     initEdit () {
       this.editor = new E(this.domId)
       window.wangEditor = E;
-      this.editor.customConfig.zIndex = 100
+      this.editor.customConfig.zIndex = 100;
+      this.editor.customConfig.onfocus = () => {
+        this.$emit('focus', this.text)
+      }
+      this.editor.customConfig.onblur = function (html) {
+        this.$emit('blur', html)
+      }
       this.editor.customConfig.onchange = (html) => {
         this.text = html;
         this.$emit('input', this.text)
       }
+      this.editor.customConfig = Object.assign(this.editor.customConfig, this.customConfig)
       this.initUploadImg();
       this.editor.create()
       this.initPlugins();
@@ -147,7 +151,7 @@ export default {
           background: 'rgba(0, 0, 0, 0.7)'
         });
 
-        const headers = Object.assign(this.headers , { "Content-Type": "multipart/form-data" });
+        const headers = Object.assign(this.headers, { "Content-Type": "multipart/form-data" });
         let oss_config = {};
         let client;
         let param = new FormData();
@@ -175,7 +179,7 @@ export default {
           if (this.isAliOSS) {
             return client.put(file.name, file);
           } else {
-            return this.$httpajax.post(url, param, { headers });
+            return this.$axios.post(url, param, { headers });
           }
         })().then(res => {
           let list = {};
@@ -242,10 +246,10 @@ export default {
       E.fullscreen = {
         // editor create之后调用
         init: function (editorSelector) {
-            setTimeout(() => {
-              document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
-            }, 0);
-          },
+          setTimeout(() => {
+            document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
+          }, 0);
+        },
         toggleFullscreen: function (editorSelector) {
           document.querySelector(editorSelector).toggleClass('fullscreen-editor');
           if (document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText == '全屏') {
