@@ -118,7 +118,7 @@ export default {
       this.editor.customConfig.onfocus = () => {
         this.$emit('focus', this.text)
       }
-      this.editor.customConfig.onblur = function (html) {
+      this.editor.customConfig.onblur = (html) => {
         this.$emit('blur', html)
       }
       this.editor.customConfig.onchange = (html) => {
