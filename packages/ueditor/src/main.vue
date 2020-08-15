@@ -132,8 +132,9 @@ export default {
       if (this.disabled) {
         this.editor.$textElem.attr('contenteditable', false)
       }
-      this.editor.txt.html(this.value)
-      this.handlePaste();
+      this.editor.txt.html(this.value);
+      // 去掉文件粘贴自动上传，如果是复制的网页图片是不会生成两个img标签，粘贴事件不识别是否是网络图片，都会已文件的方式上传，导致bug
+      // this.handlePaste();
     },
     initUploadImg () {
       this.editor.customConfig.customUploadImg = (file, insert) => {
@@ -148,7 +149,9 @@ export default {
           lock: true,
           text: 'Loading',
           spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.7)'
+          background: 'rgba(0, 0, 0, 0.7)',
+          // 只在输入框里面弹起loading，全屏loading很影响用户体验
+          target:`${this.domId}`
         });
 
         const headers = Object.assign(this.headers, { "Content-Type": "multipart/form-data" });
