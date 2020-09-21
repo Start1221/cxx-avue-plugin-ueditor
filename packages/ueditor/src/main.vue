@@ -250,7 +250,7 @@ export default {
         // editor create之后调用
         init: function (editorSelector) {
           setTimeout(() => {
-            document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
+            document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
           }, 0);
         },
         toggleFullscreen: function (editorSelector) {
@@ -265,7 +265,7 @@ export default {
       E.fullscreen.init(this.domId);
       E.views = {
         init: function (editorSelector) {
-          document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" href="###" onclick="window.wangEditor.views.toggleFullscreen(\'' + editorSelector + '\')">源代码</span></div>');
+          document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_sourcecode" onclick="window.wangEditor.views.toggleFullscreen(\'' + editorSelector + '\')">源代码</span></div>');
         },
         toggleFullscreen: () => {
           this.textall = HTMLFormat(this.value);
