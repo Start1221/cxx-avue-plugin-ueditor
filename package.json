@@ -15,7 +15,7 @@
     "element-ui": "^2.13.0",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
-    "wangeditor": "^3.1.1"
+    "wangeditor": "^4.6.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0",
@@ -26,7 +26,7 @@
     "@vue/test-utils": "^1.0.0-beta.20",
     "chai": "^4.1.2",
     "lint-staged": "^7.2.2",
-    "node-sass": "^4.9.0",
+    "sass": "^1.32.6",
     "progress-bar-webpack-plugin": "^1.11.0",
     "sass-loader": "^7.0.1",
     "vue-template-compiler": "^2.5.17"
