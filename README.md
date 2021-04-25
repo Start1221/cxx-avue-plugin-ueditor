@@ -13,7 +13,7 @@
 
 ## 三方编辑器wangEditor
 
-- [使用的是最新的wangEditorv4作为核心](https://www.kancloud.cn/wangfupeng/wangeditor3/332599)
+- [文档](https://doc.wangeditor.com/)
 - 组件配置中customConfig属性为wangEditor编辑器的配置
 
 ## 使用
@@ -37,7 +37,9 @@ column:[
         options:{
           //普通图片上传
           action: "https://avuejs.com/upload",
-          customConfig: {},//wangEditor编辑的配置
+          customConfig: {
+             lineHeights: ['1', '1.15', '1.6', '2', '2.5', '3']
+          },//wangEditor编辑的配置
           props: {
             res: "data",
             url:'url'
@@ -71,7 +73,9 @@ column:[
 options: {
   //普通图片上传
   action: "https://avuejs.com/upload",
-  customConfig: {},//wangEditor编辑的配置
+  customConfig: {
+     lineHeights: ['1', '1.15', '1.6', '2', '2.5', '3']
+  },//wangEditor编辑的配置
   props: {
     res: "data",
     url:'url'

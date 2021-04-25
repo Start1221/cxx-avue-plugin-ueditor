@@ -13,7 +13,9 @@ export default {
       obj: '<h1 style="text-align: center;"><a href="https://avuejs.com/doc/plugins/ueditor-plugins" target="_blank" style="color: rgb(194, 79, 74);">欢迎使用Avue富文本编辑器</a></h1><p class="ql-align-center" style="text-align: center;"><span style="color: rgb(194, 79, 74); font-weight: bold;"><img src="https://avuejs.com/images/logo-bg.jpg" height="200" width="200"></span></p>',
       options: {
         action: "https://avuejs.com/imgupload",
-        customConfig: {},//wangEditor编辑的配置
+        customConfig: {
+          lineHeights: ['1', '1.15', '1.6', '2', '2.5', '3']
+        },//wangEditor编辑的配置
         props: {
           res: "data",
           url: 'url'
