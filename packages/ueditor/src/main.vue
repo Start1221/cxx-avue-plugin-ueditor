@@ -1,282 +1,317 @@
 <template>
-  <div class="avue-ueditor">
-    <div :id="id"></div>
-    <el-dialog title="源代码编辑"
-               :before-close="handleClose"
-               :visible.sync="dialogVisible"
-               width="100%"
-               fullscreen
-               append-to-body>
-      <el-input v-model="textall"
-                autosize
-                type="textarea"></el-input>
-    </el-dialog>
-  </div>
+    <div class="avue-ueditor">
+        <div :id="id" />
+        <el-dialog title="源代码编辑" :before-close="handleClose" :visible.sync="dialogVisible" width="100%" fullscreen
+            append-to-body>
+            <el-input v-model="textall" autosize type="textarea" />
+        </el-dialog>
+    </div>
 </template>
 <script>
-import { getClient } from "./upload/ali";
-import { getToken } from "./upload/qiniu";
-import { getObjValue, HTMLFormat } from "./upload/util";
+import { getClient } from './upload/ali'
+import { getToken } from './upload/qiniu'
+import { getObjValue, HTMLFormat } from './upload/util'
 import E from 'wangeditor'
 export default {
-  name: "AvueUeditor",
-  computed: {
-    domId () {
-      return '#' + this.id
+    name: 'AvueUeditor',
+    props: {
+        options: {
+            type: Object,
+            default: () => {
+                return {}
+            },
+        },
+        id: {
+            type: String,
+            default: () => {
+                return 'avue-ueditor-' + Math.ceil(Math.random() * 100)
+            },
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+        value: {
+            type: String,
+            default: '',
+        },
     },
-    imgFlag () {
-      return this.img.url == '';
-    },
-    isImg () {
-      return this.img.obj.src
-    },
-    urlKey () {
-      return this.props.url || 'url';
-    },
-    props () {
-      return this.options.props || {};
-    },
-    oss () {
-      return this.options.oss
-    },
-    customConfig () {
-      return this.options.customConfig || {}
-    },
-    action () {
-      return this.options.action
-    },
-    qiniu () {
-      return this.options.qiniu
-    },
-    ali () {
-      return this.options.ali
-    },
-    isQiniuOSS () {
-      return this.oss === "qiniu";
-    },
-    isAliOSS () {
-      return this.oss === "ali";
-    },
-    headers () {
-      return this.options.headers || {};
-    }
-  },
-  props: {
-    options: {
-      type: Object,
-      default: () => {
-        return {};
-      }
-    },
-    id: {
-      type: String,
-      default: () => {
-        return 'avue-ueditor-' + Math.ceil(Math.random() * 100)
-      }
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    value: {
-      type: String,
-      default: ""
-    },
-  },
-  data () {
-    return {
-      textall: '',
-      text: '',
-      dialogVisible: false,
-      editor: ''
-    };
-  },
-  watch: {
-    disabled (val) {
-      this.editor.$textElem.attr('contenteditable', !val)
-    },
-    value (newVal) {
-      if (this.editor) {
-        if (newVal && newVal !== this.text) {
-          this.text = newVal;
-          this.editor.txt.html(newVal);
-        } else if (!newVal) {
-          this.text = '';
-          this.editor.txt.html('');
+    data() {
+        return {
+            textall: '',
+            text: '',
+            dialogVisible: false,
+            editor: '',
         }
-      }
     },
-  },
-  mounted () {
-    this.initEdit();
-  },
-  methods: {
-    initEdit () {
-      this.editor = new E(this.domId)
-      window.wangEditor = E;
-      this.editor.customConfig.zIndex = 100;
-      this.editor.customConfig.onfocus = () => {
-        this.$emit('focus', this.text)
-      }
-      this.editor.customConfig.onblur = (html) => {
-        this.$emit('blur', html)
-      }
-      this.editor.customConfig.onchange = (html) => {
-        this.text = html;
-        this.$emit('input', this.text)
-      }
-      this.editor.customConfig = Object.assign(this.editor.customConfig, this.customConfig)
-      this.initUploadImg();
-      this.editor.create()
-      this.initPlugins();
-      if (this.disabled) {
-        this.editor.$textElem.attr('contenteditable', false)
-      }
-      this.editor.txt.html(this.value);
-      // 去掉文件粘贴自动上传，如果是复制的网页图片是不会生成两个img标签，粘贴事件不识别是否是网络图片，都会已文件的方式上传，导致bug
-      // this.handlePaste();
+    computed: {
+        domId() {
+            return '#' + this.id
+        },
+        imgFlag() {
+            return this.img.url == ''
+        },
+        isImg() {
+            return this.img.obj.src
+        },
+        urlKey() {
+            return this.props.url || 'url'
+        },
+        props() {
+            return this.options.props || {}
+        },
+        oss() {
+            return this.options.oss
+        },
+        customConfig() {
+            return this.options.customConfig || {}
+        },
+        action() {
+            return this.options.action
+        },
+        qiniu() {
+            return this.options.qiniu
+        },
+        ali() {
+            return this.options.ali
+        },
+        isQiniuOSS() {
+            return this.oss === 'qiniu'
+        },
+        isAliOSS() {
+            return this.oss === 'ali'
+        },
+        headers() {
+            return this.options.headers || {}
+        },
     },
-    initUploadImg () {
-      this.editor.customConfig.customUploadImg = (file, insert) => {
-        this.uploadFile(file[0]).then(res => {
-          insert(res)
-        })
-      }
-    },
-    uploadFile (file) {
-      return new Promise((resolve, reject) => {
-        const loading = this.$loading({
-          lock: true,
-          text: 'Loading',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.7)',
-          // 只在输入框里面弹起loading，全屏loading很影响用户体验
-          target:`${this.domId}`
-        });
-
-        const headers = Object.assign(this.headers, { "Content-Type": "multipart/form-data" });
-        let oss_config = {};
-        let client;
-        let param = new FormData();
-        let url = this.action;
-        param.append("file", file);
-        if (this.isQiniuOSS) {
-          oss_config = this.qiniu;
-          const token = getToken(oss_config.AK, oss_config.SK, {
-            scope: oss_config.scope,
-            deadline: new Date().getTime() + oss_config.deadline * 3600
-          });
-          param.append("token", token);
-          url = "http://up.qiniu.com/";
-        } else if (this.isAliOSS) {
-          oss_config = this.ali;
-          client = getClient({
-            region: oss_config.region,
-            endpoint: oss_config.endpoint,
-            accessKeyId: oss_config.accessKeyId,
-            accessKeySecret: oss_config.accessKeySecret,
-            bucket: oss_config.bucket
-          });
-        }
-        (() => {
-          if (this.isAliOSS) {
-            return client.put(file.name, file);
-          } else {
-            return this.$axios.post(url, param, { headers });
-          }
-        })().then(res => {
-          let list = {};
-          var result = '';
-          if (this.isAliOSS) {
-            list = res;
-            result = list.url;
-          } else if (this.isQiniuOSS) {
-            list = res.data;
-            list.key = oss_config.url + list.key;
-            result = list.key;
-          } else {
-            list = getObjValue(res.data, this.props.res, "object");
-            result = list[this.urlKey];
-          }
-          var html = result
-          loading.close();
-          resolve(html)
-        }).catch(err => {
-          loading.close();
-          reject(err);
-        });
-      })
-
-    },
-    handleClose (done) {
-      this.$emit('input', HTMLFormat(this.textall))
-      done()
-    },
-    getUEContent () {
-      return this.editor.txt.html()
-    },
-    HTMLFormat,
-    handlePaste () {
-      //粘贴键
-      document.addEventListener("paste", e => {
-        //获取剪切板文件
-        const getFile = event => {
-          if (event.clipboardData || event.originalEvent) {
-            var clipboardData =
-              event.clipboardData || event.originalEvent.clipboardData;
-            if (clipboardData.items) {
-              var items = clipboardData.items,
-                len = items.length,
-                blob = null;
-              for (var i = 0; i < len; i++) {
-                if (items[i].type.indexOf("image") !== -1) {
-                  blob = items[i].getAsFile();
-                  return blob;
+    watch: {
+        disabled(val) {
+            this.editor.$textElem.attr('contenteditable', !val)
+        },
+        value(newVal) {
+            if (this.editor) {
+                if (newVal && newVal !== this.text) {
+                    this.text = newVal
+                    this.editor.txt.html(newVal)
+                } else if (!newVal) {
+                    this.text = ''
+                    this.editor.txt.html('')
                 }
-              }
             }
-          }
-        };
-        const file = getFile(e);
-        if (file) {
-          this.uploadFile(file).then(res => {
-            this.editor.txt.append('<img src="' + res + '" />')
-          })
-        }
-      });
-    },
-    initPlugins () {
-      E.fullscreen = {
-        // editor create之后调用
-        init: function (editorSelector) {
-          setTimeout(() => {
-            document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' + editorSelector + '\')">全屏</span></div>');
-          }, 0);
         },
-        toggleFullscreen: function (editorSelector) {
-          document.querySelector(editorSelector).toggleClass('fullscreen-editor');
-          if (document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText == '全屏') {
-            document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText = '退出全屏';
-          } else {
-            document.querySelector(editorSelector + ' ._wangEditor_btn_fullscreen').innerText = '全屏';
-          }
-        }
-      };
-      E.fullscreen.init(this.domId);
-      E.views = {
-        init: function (editorSelector) {
-          document.querySelector(editorSelector + " .w-e-toolbar").appendHTML('<div class="w-e-menu"><span class="_wangEditor_btn_sourcecode" onclick="window.wangEditor.views.toggleFullscreen(\'' + editorSelector + '\')">源代码</span></div>');
-        },
-        toggleFullscreen: () => {
-          this.textall = HTMLFormat(this.value);
-          this.dialogVisible = true;
-        }
-      };
-      E.views.init(this.domId);
     },
-  }
-};
+    mounted() {
+        this.initEdit()
+    },
+    methods: {
+        initEdit() {
+            this.editor = new E(this.domId)
+            window.wangEditor = E
+            this.editor.config.zIndex = 100
+            this.editor.config.onfocus = () => {
+                this.$emit('focus', this.text)
+            }
+            this.editor.config.onblur = (html) => {
+                this.$emit('blur', html)
+            }
+            this.editor.config.onchange = (html) => {
+                this.text = html
+                this.$emit('input', this.text)
+            }
+            this.editor.config.fontNames = [
+                '黑体',
+                '楷体',
+                '宋体',
+                '微软雅黑'
+            ]
+            this.editor.config.menuTooltipPosition = 'down'
+            this.editor.config = Object.assign(
+                this.editor.config,
+                this.customConfig
+            )
+            this.initUploadImg()
+            this.editor.create()
+            this.initPlugins()
+            if (this.disabled) {
+                this.editor.$textElem.attr('contenteditable', false)
+            }
+            this.editor.txt.html(this.value)
+            // 去掉文件粘贴自动上传，如果是复制的网页图片是不会生成两个img标签，粘贴事件不识别是否是网络图片，都会已文件的方式上传，导致bug
+            // this.handlePaste();
+        },
+        initUploadImg() {
+            this.editor.config.customUploadImg = (file, insert) => {
+                this.uploadFile(file[0]).then((res) => {
+                    insert(res)
+                })
+            }
+        },
+        uploadFile(file) {
+            return new Promise((resolve, reject) => {
+                const loading = this.$loading({
+                    lock: true,
+                    text: 'Loading',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    // 只在输入框里面弹起loading，全屏loading很影响用户体验
+                    target: `${this.domId}`,
+                })
+
+                const headers = Object.assign(this.headers, {
+                    'Content-Type': 'multipart/form-data',
+                })
+                let oss_config = {}
+                let client
+                let param = new FormData()
+                let url = this.action||'/common/customUpload'
+                param.append('file', file)
+                if (this.isQiniuOSS) {
+                    oss_config = this.qiniu
+                    const token = getToken(oss_config.AK, oss_config.SK, {
+                        scope: oss_config.scope,
+                        deadline:
+                            new Date().getTime() + oss_config.deadline * 3600,
+                    })
+                    param.append('token', token)
+                    url = 'http://up.qiniu.com/'
+                } else if (this.isAliOSS) {
+                    oss_config = this.ali
+                    client = getClient({
+                        region: oss_config.region,
+                        endpoint: oss_config.endpoint,
+                        accessKeyId: oss_config.accessKeyId,
+                        accessKeySecret: oss_config.accessKeySecret,
+                        bucket: oss_config.bucket,
+                    })
+                }
+                (() => {
+                    if (this.isAliOSS) {
+                        return client.put(file.name, file)
+                    } else {
+                        return this.$axios.post(url, param, { headers })
+                    }
+                })()
+                    .then((res) => {
+                        let list = {}
+                        var result = ''
+                        if (this.isAliOSS) {
+                            list = res
+                            result = list.url
+                        } else if (this.isQiniuOSS) {
+                            list = res.data
+                            list.key = oss_config.url + list.key
+                            result = list.key
+                        } else {
+                            list = getObjValue(
+                                res.data,
+                                this.props.res,
+                                'object'
+                            )
+                            result = list[this.urlKey]
+                        }
+                        var html = result
+                        loading.close()
+                        resolve(html)
+                    })
+                    .catch((err) => {
+                        loading.close()
+                        reject(err)
+                    })
+            })
+        },
+        handleClose(done) {
+            this.$emit('input', HTMLFormat(this.textall))
+            done()
+        },
+        getUEContent() {
+            return this.editor.txt.html()
+        },
+        HTMLFormat,
+        handlePaste() {
+            //粘贴键
+            document.addEventListener('paste', (e) => {
+                //获取剪切板文件
+                const getFile = (event) => {
+                    if (event.clipboardData || event.originalEvent) {
+                        var clipboardData =
+                            event.clipboardData ||
+                            event.originalEvent.clipboardData
+                        if (clipboardData.items) {
+                            var items = clipboardData.items,
+                                len = items.length,
+                                blob = null
+                            for (var i = 0; i < len; i++) {
+                                if (items[i].type.indexOf('image') !== -1) {
+                                    blob = items[i].getAsFile()
+                                    return blob
+                                }
+                            }
+                        }
+                    }
+                }
+                const file = getFile(e)
+                if (file) {
+                    this.uploadFile(file).then((res) => {
+                        this.editor.txt.append('<img src="' + res + '" />')
+                    })
+                }
+            })
+        },
+        initPlugins() {
+            E.fullscreen = {
+                // editor create之后调用
+                init: function (editorSelector) {
+                    setTimeout(() => {
+                        document
+                            .querySelector(editorSelector + ' .w-e-toolbar')
+                            .appendHTML(
+                                '<div class="w-e-menu"><span class="_wangEditor_btn_fullscreen" onclick="window.wangEditor.fullscreen.toggleFullscreen(\'' +
+                                    editorSelector +
+                                    '\')">全屏</span></div>'
+                            )
+                    }, 0)
+                },
+                toggleFullscreen: function (editorSelector) {
+                    document
+                        .querySelector(editorSelector)
+                        .toggleClass('fullscreen-editor')
+                    if (
+                        document.querySelector(
+                            editorSelector + ' ._wangEditor_btn_fullscreen'
+                        ).innerText == '全屏'
+                    ) {
+                        document.querySelector(
+                            editorSelector + ' ._wangEditor_btn_fullscreen'
+                        ).innerText = '退出全屏'
+                    } else {
+                        document.querySelector(
+                            editorSelector + ' ._wangEditor_btn_fullscreen'
+                        ).innerText = '全屏'
+                    }
+                },
+            }
+            E.fullscreen.init(this.domId)
+            E.views = {
+                init: function (editorSelector) {
+                    document
+                        .querySelector(editorSelector + ' .w-e-toolbar')
+                        .appendHTML(
+                            '<div class="w-e-menu"><span class="_wangEditor_btn_sourcecode" onclick="window.wangEditor.views.toggleFullscreen(\'' +
+                                editorSelector +
+                                '\')">源代码</span></div>'
+                        )
+                },
+                toggleFullscreen: () => {
+                    this.textall = HTMLFormat(this.value)
+                    this.dialogVisible = true
+                },
+            }
+            E.views.init(this.domId)
+        },
+    },
+}
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../../theme-chack/src/index.scss";
 </style>

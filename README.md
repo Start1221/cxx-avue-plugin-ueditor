@@ -13,7 +13,7 @@
 
 ## 三方编辑器wangEditor
 
-- [文档](https://www.kancloud.cn/wangfupeng/wangeditor3/332599)
+- [使用的是最新的wangEditorv4作为核心](https://www.kancloud.cn/wangfupeng/wangeditor3/332599)
 - 组件配置中customConfig属性为wangEditor编辑器的配置
 
 ## 使用
