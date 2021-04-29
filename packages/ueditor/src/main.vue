@@ -104,6 +104,7 @@ export default {
     show (val) {
       if (val === false) {
         this.$emit('input', HTMLFormat(this.html))
+        this.$emit('change', HTMLFormat(this.html))
       }
     },
     value (newVal) {
@@ -138,6 +139,7 @@ export default {
       this.editor.config.onchange = (html) => {
         this.text = html
         this.$emit('input', this.text)
+        this.$emit('change', this.text)
       }
       this.editor.config.emotions = [
         {
