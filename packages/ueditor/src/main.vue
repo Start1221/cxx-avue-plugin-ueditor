@@ -62,6 +62,9 @@ export default {
     isImg () {
       return this.img.obj.src
     },
+    domain(){
+        return this.props.home || ''
+    },
     urlKey () {
       return this.props.url || 'url'
     },
@@ -219,7 +222,7 @@ export default {
                 this.props.res,
                 'object'
               )
-              result = list[this.urlKey]
+              result = this.domain + list[this.urlKey]
             }
             var html = result
             resolve(html)
