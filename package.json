@@ -1,6 +1,6 @@
 {
-  "name": "avue-plugin-ueditor",
-  "version": "0.2.3",
+  "name": "cxx-avue-plugin-ueditor",
+  "version": "0.2.4",
   "main": "packages/index.js",
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -13,7 +13,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "vue": "^2.5.17",
-    "wangeditor": "^4.6.16"
+    "wangeditor": "^4.7.9"
   },
   "devDependencies": {
     "vue-router": "^3.0.1",
