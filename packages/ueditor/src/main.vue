@@ -14,7 +14,7 @@
 <script>
 import { getClient } from './upload/ali'
 import { getToken } from './upload/qiniu'
-import { getObjValue, HTMLFormat } from './upload/util'
+import { getObjValue, HTMLFormat, validatenull } from './upload/util'
 import E from 'wangeditor'
 export default {
   name: 'AvueUeditor',
@@ -62,8 +62,8 @@ export default {
     isImg () {
       return this.img.obj.src
     },
-    domain(){
-        return this.props.home || ''
+    domain () {
+      return this.props.home || ''
     },
     urlKey () {
       return this.props.url || 'url'
@@ -85,6 +85,9 @@ export default {
     },
     ali () {
       return this.options.ali
+    },
+    isHtml () {
+      return validatenull(this.customConfig.showHtml) ? true : this.customConfig.showHtml
     },
     isQiniuOSS () {
       return this.oss === 'qiniu'
@@ -236,24 +239,27 @@ export default {
       return this.editor.txt.html()
     },
     initPlugins () {
-      E.views = {
-        init: function (editorSelector) {
-          document
-            .querySelector(editorSelector + ' .w-e-toolbar')
-            .appendHTML(
-              `<div class="w-e-menu" data-title="源代码" onclick="window.wangEditor.views.toggleFullscreen()" >
+      if (this.isHtml) {
+        E.views = {
+          init: function (editorSelector) {
+            document
+              .querySelector(editorSelector + ' .w-e-toolbar')
+              .appendHTML(
+                `<div class="w-e-menu" data-title="源代码" onclick="window.wangEditor.views.toggleFullscreen()" >
                   <span class="wangEditor_html" >
                   Html
                   </span>
               </div>`
-            )
-        },
-        toggleFullscreen: () => {
-          this.html = HTMLFormat(this.value)
-          this.show = true
-        },
+              )
+          },
+          toggleFullscreen: () => {
+            this.html = HTMLFormat(this.value)
+            this.show = true
+          },
+        }
+        E.views.init(this.domId)
       }
-      E.views.init(this.domId)
+
     },
   },
 }
